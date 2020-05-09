@@ -16,3 +16,7 @@ target/
 
 ### VS Code ###
 .vscode/
+/frontend/till/dist
+/frontend/till/tmp
+/frontend/till/out-tsc
+/frontend/till/node_modules

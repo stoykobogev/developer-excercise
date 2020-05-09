@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="d-inline-block col-6 m-5 border border-primary rounded">
+        <div class="row justify-content-around" *ngFor="let productArray of productsMatrix">
+            <button class="col-3 m-3 border border-primary rounded text-center" *ngFor="let product of productArray"
+                (click)="addToCart(product)">
+                <div>{{product.name}}</div>
+                <div>{{product.price | number: '1.2-2'}} aws</div>
+            </button>
+        </div>
+    </div>
+
+    <div class="d-inline-block m-5 col-4 border border-primary rounded">
+        <div class="row justify-content-around" *ngFor="let item of cart | keyvalue">
+            <button class="text-danger" (click)="removeFromCart(item.key)">X</button>
+            <div class="border border-primary p-1">
+                <input [disabled]="item.value < 2" [(ngModel)]="item.key.halfPrice" class="mr-2" type="checkbox">
+                <span >Half Price</span>
+            </div>
+            <span>{{item.key.name}}</span>
+            <span>x{{item.value}}</span>
+            <span>{{(item.key.price * item.value) | number: '1.2-2'}}</span>
+        </div>
+        <div *ngIf="totalSum > 0">
+            <div>--------------</div>
+            <div>Total: {{totalSum | number: '1.2-2'}} aws</div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-end">     
+    <div class="col-2 input-group mr-5">
+        <div class="input-group-prepend border border-primary">
+            <div class="input-group-text">
+            <input type="checkbox" aria-label="Checkbox for following text input">
+            </div>
+        </div>
+        <input type="text" class="form-control border border-primary" aria-label="Text input with checkbox" value="2 for 3 Deal" disabled>
+    </div>
+</div>
