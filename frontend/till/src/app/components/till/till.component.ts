@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Product } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products.service';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-till',
@@ -11,11 +12,20 @@ export class TillComponent implements OnInit {
 
   productsMatrix = new Array<Product[]>();
   cart = new Map<Product, number>();
+  twoForThreeSelection = new Array<Product>();
+  halfPriceSelection = new Map<Product, number>();
   totalSum = 0;
+  selectedProduct: Product;
+  dealForm: FormGroup;
+  dealControl = new FormControl('none');
 
   constructor(private productsService: ProductsService) { }
 
   ngOnInit(): void {
+
+    this.dealForm = new FormGroup({
+      dealControl: this.dealControl
+    });
 
     this.productsService.getAllProducts().subscribe(
       (products) => {
@@ -33,46 +43,88 @@ export class TillComponent implements OnInit {
     );
   }
 
-  addToCart(product: Product): void {
-    if (this.cart.has(product)) {
-      this.cart.set(product, this.cart.get(product) + 1);
-    } else {
-      this.cart.set(product, 1);
+  selectProduct(product: Product): void {
+    this.selectedProduct = product;
+    this.dealControl.setValue('none');
+  }
+
+  addToCart(): void {
+    this.addToMap(this.cart, this.selectedProduct);
+    
+    if (this.dealControl.value === "twoForThree") {
+      this.twoForThreeSelection.push(this.selectedProduct);
+    } else if (this.dealControl.value === "halfPrice") {
+      this.addToMap(this.halfPriceSelection, this.selectedProduct);
     }
 
-    this.totalSum += product.price;
+    this.calculateTotalSum();
   }
+  
+  removeFromTwoForThreeSelection(productIndex: number, product: Product): void {
+    this.twoForThreeSelection = this.twoForThreeSelection.filter((product, index) => {
+      return productIndex !== index;
+    });
+
+    this.removeFromMap(this.cart, product);
+
+    this.calculateTotalSum();
+  } 
 
   removeFromCart(product: Product): void {
-    let productCount = this.cart.get(product);
+    this.removeFromMap(this.cart, product);
+    this.removeFromMap(this.halfPriceSelection, product);
 
-    if (productCount < 2) {
-      this.cart.delete(product);
-    } else {
-      this.cart.set(product, this.cart.get(product) - 1);
-    }
-
-    this.totalSum -= product.price;
+    this.calculateTotalSum();
   }
 
-  calculateTotalSum(): void {
-
+  clearCart(): void {
+    this.cart.clear();
+    this.halfPriceSelection.clear();
+    this.twoForThreeSelection = [];
     this.totalSum = 0;
-    let productsWithoutHalfPrice = new Array<Product>();
+  }
 
-    this.cart.forEach((productCount, product) => {
-      let currenProductSum = product.price * productCount;
+  private addToMap(map: Map<Product, number>, product: Product): void {
+    if (map.has(product)) {
+      map.set(product, map.get(product) + 1);
+    } else {
+      map.set(product, 1);
+    }
+  }
 
-      if (product.halfPrice) {
-        currenProductSum = currenProductSum / 2;
+  private removeFromMap(map: Map<Product, number>, product: Product): void {
 
-        this.totalSum += currenProductSum;
-        
-      } else {
-        productsWithoutHalfPrice.push(product);
+    let productCount = map.get(product);
+
+    if (productCount > 1) {
+      map.set(product, productCount - 1);
+    } else {
+      map.delete(product);
+    }
+  }
+
+  private calculateTotalSum(): void {
+
+    let cheapestTwoForThreeSelectionPrice = 0;
+    if (this.twoForThreeSelection.length > 2) {
+      cheapestTwoForThreeSelectionPrice = this.twoForThreeSelection[0].price;
+      for (let i = 1; i < 3; i++) {
+        if (cheapestTwoForThreeSelectionPrice > this.twoForThreeSelection[i].price) {
+          cheapestTwoForThreeSelectionPrice = this.twoForThreeSelection[i].price;
+        }
       }
+    }
 
-      
+    let halfPriceDiscount = 0;
+    this.halfPriceSelection.forEach((productCount, product) => {
+      halfPriceDiscount += product.price * Math.floor(productCount / 2);
     });
+
+    let cartSum = 0;
+    this.cart.forEach((productCount, product) => {
+      cartSum += product.price * productCount;
+    });
+
+    this.totalSum = cartSum - cheapestTwoForThreeSelectionPrice - halfPriceDiscount;
   }
 }
