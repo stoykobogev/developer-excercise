@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Product } from '../models/product.model';
-import { Observable, Subscriber } from 'rxjs';
+import { Observable, Subscriber, Subject, BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
@@ -11,14 +11,9 @@ export class ProductsService {
   private static PRODUCTS_URL = "http://localhost:8080/products";
 
   products: Product[];
-  productsObservable: Observable<Product[]>;
-  productsObserver: Subscriber<Product[]>;
+  productsSubject = new BehaviorSubject<Product[]>([]);
 
-  constructor(private http: HttpClient) {
-    this.productsObservable = new Observable((observer) => {
-      this.productsObserver = observer;
-    });
-  }
+  constructor(private http: HttpClient) { }
 
   getAllProducts(): Observable<Product[]> {
     if (!this.products) {
@@ -26,20 +21,20 @@ export class ProductsService {
         (products) => {
           this.products = products;
 
-          this.productsObserver.next(this.products);
+          this.productsSubject.next(this.products);
         }
       );
     }
-
-    return this.productsObservable;
+    
+    return this.productsSubject;
   }
 
   createProduct(product: Product): void {
-    this.http.post<string>(ProductsService.PRODUCTS_URL, product).subscribe(
+    this.http.post(ProductsService.PRODUCTS_URL, product, { responseType: 'text' }).subscribe(
       (id) => {
         product.id = id;
         this.products.push(product);
-        this.productsObserver.next(this.products);
+        this.productsSubject.next(this.products);
       }
     );
   }
@@ -49,6 +44,12 @@ export class ProductsService {
   }
 
   deleteProduct(productId: string): void {
-    this.http.delete<void>(ProductsService.PRODUCTS_URL  + '/' + productId).subscribe();
+    this.http.delete<void>(ProductsService.PRODUCTS_URL  + '/' + productId).subscribe(() => {
+      this.products = this.products.filter((product) => {
+        return product.id !== productId;
+      });
+    
+      this.productsSubject.next(this.products);
+    });
   }
 }

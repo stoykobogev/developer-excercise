@@ -1,14 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Product } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products.service';
 import { FormGroup, FormControl } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-till',
   templateUrl: './till.component.html',
   styleUrls: ['./till.component.css']
 })
-export class TillComponent implements OnInit {
+export class TillComponent implements OnInit, OnDestroy {
 
   productsMatrix = new Array<Product[]>();
   cart = new Map<Product, number>();
@@ -18,6 +19,7 @@ export class TillComponent implements OnInit {
   selectedProduct: Product;
   dealForm: FormGroup;
   dealControl = new FormControl('none');
+  productsSubscription: Subscription;
 
   constructor(private productsService: ProductsService) { }
 
@@ -27,9 +29,9 @@ export class TillComponent implements OnInit {
       dealControl: this.dealControl
     });
 
-    this.productsService.getAllProducts().subscribe(
+    this.productsSubscription = this.productsService.getAllProducts().subscribe(
       (products) => {
-
+      
         let currentArray: Product[];
         for (let index = 0; index < products.length; index++) {
           if (index % 3 === 0) {
@@ -41,6 +43,10 @@ export class TillComponent implements OnInit {
         }
       }
     );
+  }
+
+  ngOnDestroy(): void {
+    this.productsSubscription.unsubscribe();
   }
 
   selectProduct(product: Product): void {
