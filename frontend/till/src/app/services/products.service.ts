@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Product } from '../models/product.model';
-import { Observable, Subscriber, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { ErrorResponse } from '../models/error-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,8 @@ export class ProductsService {
           this.products = products;
 
           this.productsSubject.next(this.products);
-        }
+        },
+        this.errorHandler
       );
     }
     
@@ -35,21 +37,33 @@ export class ProductsService {
         product.id = id;
         this.products.push(product);
         this.productsSubject.next(this.products);
-      }
+      },
+      this.errorHandler
     );
   }
 
   updateProduct(product: Product): void {
-    this.http.put<void>(ProductsService.PRODUCTS_URL + '/' + product.id, product).subscribe();
+    this.http.put<void>(ProductsService.PRODUCTS_URL + '/' + product.id, product).subscribe(
+      () => {},
+      this.errorHandler
+    );
   }
 
   deleteProduct(productId: string): void {
-    this.http.delete<void>(ProductsService.PRODUCTS_URL  + '/' + productId).subscribe(() => {
-      this.products = this.products.filter((product) => {
-        return product.id !== productId;
-      });
-    
-      this.productsSubject.next(this.products);
-    });
+    this.http.delete<void>(ProductsService.PRODUCTS_URL  + '/' + productId).subscribe(
+      () => {
+        this.products = this.products.filter((product) => {
+          return product.id !== productId;
+        });
+      
+        this.productsSubject.next(this.products);
+      },
+      this.errorHandler
+    );
+  }
+
+  private errorHandler(response: any): void {
+    let errorResponse = response.error as ErrorResponse;
+    alert('Error occured:\n\n' + errorResponse.status + ' ' + errorResponse.error + '\n\n' + errorResponse.message + '\n')
   }
 }
