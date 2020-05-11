@@ -63,10 +63,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   saveProduct() {
 
-    console.log(ProductsComponent.PRODUCT_PRICE_REGEXP.test(this.newProduct.price.toString()))
-
-    console.log(this.newProduct.price.toString())
-
     if (this.validateProduct(this.newProduct)) {
       this.productsService.createProduct(this.newProduct);
       this.hideCreateProduct();
