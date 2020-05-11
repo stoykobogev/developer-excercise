@@ -24,7 +24,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.productsSubscription = this.productsService.getAllProducts().subscribe(
       (products) => {
         this.products = products.map<ProductEdit>((product) => new ProductEdit(product));
-        console.log(this.products)
+        console.log(this.products);
       }
     );
   }
@@ -48,7 +48,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     if (this.selectedProduct) {
       this.selectedProduct.isEditing = false;
     }
-    
+
     this.selectedProduct = null;
   }
 

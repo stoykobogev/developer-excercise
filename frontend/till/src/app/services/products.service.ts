@@ -9,7 +9,7 @@ import { ErrorResponse } from '../models/error-response.model';
 })
 export class ProductsService {
 
-  private static PRODUCTS_URL = "http://localhost:8080/products";
+  private static PRODUCTS_URL = 'http://localhost:8080/products';
 
   products: Product[];
   productsSubject = new BehaviorSubject<Product[]>([]);
@@ -27,7 +27,7 @@ export class ProductsService {
         this.errorHandler
       );
     }
-    
+
     return this.productsSubject;
   }
 
@@ -55,7 +55,7 @@ export class ProductsService {
         this.products = this.products.filter((product) => {
           return product.id !== productId;
         });
-      
+
         this.productsSubject.next(this.products);
       },
       this.errorHandler
@@ -63,7 +63,7 @@ export class ProductsService {
   }
 
   private errorHandler(response: any): void {
-    let errorResponse = response.error as ErrorResponse;
-    alert('Error occured:\n\n' + errorResponse.status + ' ' + errorResponse.error + '\n\n' + errorResponse.message + '\n')
+    const errorResponse = response.error as ErrorResponse;
+    alert('Error occured:\n\n' + errorResponse.status + ' ' + errorResponse.error + '\n\n' + errorResponse.message + '\n');
   }
 }

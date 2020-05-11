@@ -31,14 +31,14 @@ export class TillComponent implements OnInit, OnDestroy {
 
     this.productsSubscription = this.productsService.getAllProducts().subscribe(
       (products) => {
-      
+
         let currentArray: Product[];
         for (let index = 0; index < products.length; index++) {
           if (index % 3 === 0) {
-            currentArray = new Array<Product>()
+            currentArray = new Array<Product>();
             this.productsMatrix.push(currentArray);
           }
-          
+
           currentArray.push(products[index]);
         }
       }
@@ -56,25 +56,25 @@ export class TillComponent implements OnInit, OnDestroy {
 
   addToCart(): void {
     this.addToMap(this.cart, this.selectedProduct);
-    
-    if (this.dealControl.value === "twoForThree") {
+
+    if (this.dealControl.value === 'twoForThree') {
       this.twoForThreeSelection.push(this.selectedProduct);
-    } else if (this.dealControl.value === "halfPrice") {
+    } else if (this.dealControl.value === 'halfPrice') {
       this.addToMap(this.halfPriceSelection, this.selectedProduct);
     }
 
     this.calculateTotalSum();
   }
-  
+
   removeFromTwoForThreeSelection(productIndex: number, product: Product): void {
-    this.twoForThreeSelection = this.twoForThreeSelection.filter((product, index) => {
+    this.twoForThreeSelection = this.twoForThreeSelection.filter((value, index) => {
       return productIndex !== index;
     });
 
     this.removeFromMap(this.cart, product);
 
     this.calculateTotalSum();
-  } 
+  }
 
   removeFromCart(product: Product): void {
     this.removeFromMap(this.cart, product);
@@ -100,7 +100,7 @@ export class TillComponent implements OnInit, OnDestroy {
 
   private removeFromMap(map: Map<Product, number>, product: Product): void {
 
-    let productCount = map.get(product);
+    const productCount = map.get(product);
 
     if (productCount > 1) {
       map.set(product, productCount - 1);
