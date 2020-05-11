@@ -10,7 +10,7 @@ import { ProductEdit } from 'src/app/models/product-edit.model';
 })
 export class ProductsComponent implements OnInit, OnDestroy {
 
-  private static PRODUCT_PRICE_REGEXP = new RegExp('^\d{1,7}(\.\d{1,2})?$');
+  private static PRODUCT_PRICE_REGEXP = new RegExp(/^\d{1,7}(\.\d{1,2})?$/);
 
   products = new Array<ProductEdit>();
   productsSubscription: Subscription;
@@ -62,6 +62,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   saveProduct() {
+
+    console.log(ProductsComponent.PRODUCT_PRICE_REGEXP.test(this.newProduct.price.toString()))
+
+    console.log(this.newProduct.price.toString())
 
     if (this.validateProduct(this.newProduct)) {
       this.productsService.createProduct(this.newProduct);
