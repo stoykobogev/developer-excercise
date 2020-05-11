@@ -8,6 +8,7 @@ import javax.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,19 +35,20 @@ public class ProductController {
 		return this.productService.getAllProducts();
 	}
 	
-	@PostMapping
+	@PostMapping(produces = "text/plain")
 	@ResponseStatus(HttpStatus.CREATED)
 	public String createProduct(@Valid @RequestBody ProductParams params) {
 		return this.productService.createProduct(params);
 	}
 	
 	@PutMapping("/{productId}")
-	public void updateProduct(@Valid @RequestBody ProductParams params, @Valid @Pattern(regexp = AppConstants.UUID_PATTERN) String productId) {
+	public void updateProduct(@Valid @RequestBody ProductParams params, 
+			@Valid @Pattern(regexp = AppConstants.UUID_PATTERN) @PathVariable String productId) {
 		this.productService.updateProduct(params, productId);
 	}
 	
 	@DeleteMapping("/{productId}")
-	public void deleteProduct(@Valid @Pattern(regexp = AppConstants.UUID_PATTERN) String productId) {
+	public void deleteProduct(@Valid @Pattern(regexp = AppConstants.UUID_PATTERN) @PathVariable String productId) {
 		this.productService.deleteProduct(productId);
 	}
 }
